@@ -1,57 +1,78 @@
 package models;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
-public class Department {
+public class Department implements Serializable {
 //Instance Variables
 	String name;
 	float budget;
 	int phoneNumber;
 	int ID;
-	Employee employees[];
+	List<Employee> employees;
 	
 //Constructors	
-	public Department() {
-		
+	public Department(String name) {
+		this.name = name;
 	}
 
-	public Department(String name, int iD, Employee[] employees) {
+	public Department(String name, float budget, int phoneNumber, int id) {
 		super();
 		this.name = name;
-		ID = iD;
-		this.employees = employees;
+		this.phoneNumber = phoneNumber;
+		this.ID = id;
 	}
 	
+//Methods
+	public void addEmployee(Employee e) {
+		employees.add(e);
+	}
+	
+	public void removeEmployee(int id) {
+		for(Employee e : employees) {
+			if(e.getID() == id) {
+				employees.remove(e);
+				System.out.println("Employee removed");
+			} else {
+				System.out.println("Employee not found");
+			}
+		}
+	}
 	
 //Getters
 	public String getName() {
 		return name;
 	}
 
-	public int getID() {
-		return ID;
+	public float getBudget() {
+		return budget;
 	}
 
-	public Employee[] getEmployees() {
+	public List<Employee> getEmployees() {
 		return employees;
+	}
+	
+	public int getID() {
+		return ID;
 	}
 //Setters
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setID(int iD) {
-		ID = iD;
+	public void setBudget(float budget) {
+		this.budget = budget;
 	}
 
-	public void setEmployees(Employee[] employees) {
+	public void setEmployees(List<Employee> employees) {
 		this.employees = employees;
 	}
-
-//Override methods
+//Overridden Methods
 	@Override
 	public String toString() {
-		return "Department [name=" + name + ", ID=" + ID + ", employees=" + Arrays.toString(employees) + "]";
+		return "Department [name=" + name + ", budget=" + budget + ", phoneNumber=" + phoneNumber + ", ID=" + ID
+				+ ", employees=" + employees + "]";
 	}
-	
 }

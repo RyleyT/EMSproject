@@ -1,25 +1,22 @@
 package models;
 
-public class Employee {
+import java.io.Serializable;
+
+public class Employee implements Serializable {
 //Instance Variables
 	int ID;
 	String firstName;
 	String lastName;
-	Department department;
+	String departmentName;
+	//add more here if needed
 	
 //Constructors
-	public Employee() {
-		
-	}
-	
-	public Employee(int ID, String firstName, String lastName, Department department) {
+	public Employee(int ID, String firstName, String lastName, String departmentName) {
 		this.ID = ID;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.department = department;
-	}
-	
-	
+		this.departmentName = departmentName;
+	}	
 //Getters
 	public int getID() {
 		return ID;
@@ -30,8 +27,8 @@ public class Employee {
 	public String getLastName() {
 		return lastName;
 	}
-	public Department getDepartment() {
-		return department;
+	public String getDepartment() {
+		return departmentName;
 	}
 //Setters
 	public void setID(int iD) {
@@ -43,9 +40,14 @@ public class Employee {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public void setDepartment(Department department) {
-		this.department = department;
+	public void setDepartment(String department) {
+		this.departmentName = department;
 	}
 	
-	
+//Overridden methods
+	@Override
+	public String toString() {
+		return "Employee [ID=" + ID + ", firstName=" + firstName + ", lastName=" + lastName + ", departmentName="
+				+ departmentName + "]";
+	}
 }
