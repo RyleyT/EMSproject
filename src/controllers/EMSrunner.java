@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import Views.Menu;
+
 public class EMSrunner {
 	/*
 	 * Entry point for our application

@@ -3,12 +3,14 @@ package models;
 import java.io.Serializable;
 
 public class Employee implements Serializable {
+
+private static final long serialVersionUID = 1; //Initialize a serial ID to prevent deserialization errors.
+	
 //Instance Variables
 	int ID;
 	String firstName;
 	String lastName;
 	String departmentName;
-	//add more here if needed
 	
 //Constructors
 	public Employee(int ID, String firstName, String lastName, String departmentName) {

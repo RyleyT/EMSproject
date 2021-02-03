@@ -14,11 +14,14 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+import Views.Menu;
 import models.Department;
 import models.Employee;
 
 /*
  * Purpose of this class is to handle all operations involving reading or writing to a file.
+ * This class handles the majority of the logic for this application and does almost all of the data maniupulation.
+ * 
  */
 
 public class FileRunner {
@@ -59,10 +62,11 @@ public class FileRunner {
 				String lastName = scan.nextLine();
 			System.out.println("Enter the new Employee's department.");
 				String departmentName = scan.nextLine();
-			Employee employee = new Employee(id, firstName, lastName, departmentName);
-				writer.writeObject(employee); //Write employee to file
+			Employee employee = new Employee(id, firstName, lastName, departmentName);					
+				writer.writeObject(employee); //Write employee to file		
 			System.out.println("Employee added to file");
-			Menu.mainMenu(); //Return to main menu		
+				writer.close();
+				checkDepartmentExistence(employee);//Add employee to existing department, if none exists create a new one.	
 		}
 		
 		if (fileName.equals("Department")) {
@@ -85,7 +89,7 @@ public class FileRunner {
 			Department department = new Department(name, budget, phoneNumber, id);
 				writer.writeObject(department);
 			System.out.println("Department added to file");
-			Menu.mainMenu(); //Return to main menu
+				writer.close();
 		}
 		scan.close();
 	}
@@ -99,6 +103,7 @@ public class FileRunner {
 				for(Employee employee : employeeList) { //Search for the employee in the list
 					if(employee.getID() == id) {
 						employeeList.remove(employee); //Remove employee from list
+						System.out.println(employee.getFirstName() + " Successfully removed."); //Confirm removal 
 					} 
 				}
 				for(Employee employee : employeeList) { //Now for each employee in the list, write to the file
@@ -113,6 +118,7 @@ public class FileRunner {
 				for(Department department : departmentList) { //Search for the employee in the list
 					if(department.getID() == id) {
 						departmentList.remove(department); //Remove employee from list
+						System.out.println(department.getName() + " Successfully removed."); //Confirm removal
 					} 
 				}
 				for(Department department : departmentList) { //Now for each employee in the list, write to the file
@@ -132,7 +138,6 @@ public class FileRunner {
 			System.out.println("Input mismatch");
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void updateFile(String fileName, int ID) throws FileNotFoundException, IOException {
@@ -180,19 +185,50 @@ public class FileRunner {
 		}
 		
 		if(fileName.equals("Department")) {
-			List<Department> departmentList = (List<Department>) readDepartmentFile(fileName); //Convert them into a list
+			if(file.length() < 1) { //Check if file has contents
+				writer = new ObjectOutputStream(new FileOutputStream(file, true)); //If the file has not been written to, use a new stream
+			} else {
+				writer = new MyObjectOutputStream(new FileOutputStream(file, true)); //If it has use our previous file stream
+			}
+			List<Department> departmentList = (List<Department>) readDepartmentFile(fileName); //Grab departments from file and Convert them into a list
 			for(Department d: departmentList) {
 				if(d.getID() == ID) {
-					
+					System.out.println("What would you like to update?");
+					System.out.println("1.)Department name\t2.)Department budget\t3.)Department phone number\t4.)Department ID");
+					int choice = scan.nextInt();
+					scan.nextLine();
+					if(choice == 1) {
+						System.out.println("Enter a new Department name");
+						String newName = scan.nextLine();
+						d.setName(newName);
+					} else if(choice == 2) {
+						System.out.println("Enter a new Department budget");
+						float newBudget =  scan.nextFloat();
+						scan.nextLine();
+						d.setBudget(newBudget);
+					} else if(choice == 3) {
+						System.out.println("Enter a new Department phone number");
+						int newNumber = scan.nextInt();
+						scan.nextLine();
+						d.setPhoneNumber(newNumber);
+					} else if(choice == 4) {
+						System.out.println("Enter a new Department ID");
+						int newID = scan.nextInt();
+						scan.nextLine();
+						d.setID(newID);
+					} 
 				} 
 			}
+			for(Department d : departmentList) { //Write new department objects to file
+				writer.writeObject(d);
+			}
 		}
-		
-		Menu.mainMenu();
+		scan.close();
 	}
 	
 	public static void listFile(String fileName) {
 		int id;
+		
 		if(fileName.equals("Employee")) { //Should list only one employee's information. Search can be done using ID
 			try(Scanner scan = new Scanner(System.in)) {
 				System.out.println("Enter the ID of the employee you would like to find: ");
@@ -208,11 +244,14 @@ public class FileRunner {
 			} catch(Exception e) {	
 				e.printStackTrace();
 			}
-		} else if(fileName.equals("Department")) { //Should list only one departments information
+		} 
+		
+		if(fileName.equals("Department")) { //Should list only one departments information
 			try(Scanner scan = new Scanner(System.in)) {
 				System.out.println("Enter the ID of the department you would like to find: ");
-				id = scan.nextInt(); //Get our employee ID
-				List<Department> departmentList = (List<Department>) readDepartmentFile(fileName);
+				id = scan.nextInt(); //Get our department ID
+				scan.nextLine(); //Eat the new line character
+				List<Department> departmentList = (List<Department>) readDepartmentFile(fileName); //Grab the list of departments from the file
 				for(Department department : departmentList) {
 					if(department.getID() == id) {
 						System.out.println(department.toString());
@@ -288,5 +327,36 @@ public class FileRunner {
 			return null;
 	}
 	
-	
+	private static void checkDepartmentExistence(Employee employee) throws FileNotFoundException, IOException { //Helper method to help add an employee to a department if it exists. If not create a new department for employee.
+		File file = openFile("Department");
+		ObjectOutputStream writer;
+		Department department;
+		boolean departmentExists = false;
+		
+		if(file.length() < 1) { //Check if file has contents
+			writer = new ObjectOutputStream(new FileOutputStream(file, true)); //If the file has not been written to, use a new stream
+		} else {
+			writer = new MyObjectOutputStream(new FileOutputStream(file, true)); //If it has use our previous file stream
+		}
+		
+		List<Department> departmentList = readDepartmentFile("Department");	
+		for(Department d : departmentList) {
+			if(d.getName().equals(employee.getDepartment())) { //Check if Employee department name matches with any existing Department names.
+				d.addEmployee(employee); //Add employee to department if matches		
+				departmentExists = true;
+			}		
+		}
+		
+		if(!departmentExists) { //If the department did not exist, create it and add the user
+			department = new Department(employee.getDepartment()); //First create the department with the new name
+			department.addEmployee(employee); //Then add the new employee to department
+			departmentList.add(department); //Add new department to our department list
+		}
+		
+		for(Department d : departmentList) { //Write new department objects to file
+			writer.writeObject(d);
+		}
+		
+		writer.close();
+	}
 }

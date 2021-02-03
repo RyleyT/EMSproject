@@ -1,9 +1,11 @@
-package controllers;
+package Views;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+import controllers.FileRunner;
 
 public class Menu {
 	public static void mainMenu() {
@@ -35,10 +37,15 @@ public class Menu {
 			scan.nextLine(); //Eat the new line character
 			if(choice == 1) {
 				FileRunner.addToFile(menuName);
+				mainMenu();
 			}else if (choice == 2) {
 				updateMenu(menuName);
+				mainMenu();
 			} else if (choice == 3) {
-				//FileRunner.removeFromFile(menuName);
+				System.out.println("Enter the ID of the " + menuName + " you would like to remove: ");
+				int ID = scan.nextInt();
+				FileRunner.removeFromFile(menuName, ID);
+				mainMenu();
 			} else if (choice == 4) {
 				FileRunner.listFile(menuName);
 				mainMenu();
@@ -62,29 +69,7 @@ public class Menu {
 		try(Scanner scan = new Scanner(System.in)){		
 			int ID = scan.nextInt();
 			scan.nextLine(); // Eat the new line character		
-			
-			if(menuName.equals("Employee")) { //Prompts for our Employee menu
-					FileRunner.updateFile(menuName, ID);
-			}
-			
-			if(menuName.equals("Department")) { //Prompts for our Department menu
-				System.out.println("What would you like to update?");
-				System.out.println("1.)Department name\t2.)Department budget\t3.)Department phone number\t4.)Department ID\t5.)Employees");
-				int choice = scan.nextInt();
-				scan.nextLine();
-				if(choice == 1) {
-					
-				} else if(choice == 2) {
-					
-				} else if(choice == 3) {
-					
-				} else if(choice == 4) {
-					
-				} else if(choice == 5) {
-					
-				}
-			} 
-	
+			FileRunner.updateFile(menuName, ID);
 		} catch (InputMismatchException e) {
 			e.printStackTrace();
 		}
